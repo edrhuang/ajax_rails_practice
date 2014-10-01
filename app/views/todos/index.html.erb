@@ -1,0 +1,62 @@
+<h1>To Do Index</h1>
+
+<input type="text">
+<button>Add it</button>
+
+<ul>
+	<% @todos.each do |todo| %>
+	<li><%= todo.description %><span id="<%= todo.id %>">&times;</span></li>
+	<% end%>
+</ul>
+
+<script type="text/javascript">
+	$('button').click(function(){
+		var user_input = $('input').val();
+
+		data_hash = {
+			"todo":{"description": user_input}
+		}
+
+		var request = $.ajax({
+			url: "/todos",
+			type: "POST",
+			data: data_hash,
+			dataType: "json"
+		});
+
+		request.done(function(data){
+			$('ul').append("<li>" + data.description + " <span id=" + data.id + ">&times;</span></li>")
+		})
+
+		request.fail(function(data){
+			$('h1').append("<p> There was an error saving your todo</p>")
+		})
+		$('input').val(''); 
+	});
+
+	$('ul').on('click', function(e){
+		var id = $(e.target)[0].id;
+
+		if(id) {
+			var request = $.ajax({
+				url: "/todos/" + id,
+				type: "DELETE",
+				data: {},
+				dataType: "json"
+			});
+
+			request.done(function(data) {
+				$(e.target).parent().remove();
+			});
+
+			request.fail(function(data) {
+				$('h1').append('<p>There was an error deleting your todo</p>')
+			});
+
+		}
+
+
+	});
+
+
+</script>
